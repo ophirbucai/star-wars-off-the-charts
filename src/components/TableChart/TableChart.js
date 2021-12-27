@@ -70,17 +70,21 @@ function TableChart({ vehicles }) {
 
     const homePlanets = useMemo(() => {
         return (
-            <Cell>{mostPopulated?.pilots.map((pilot, i) => (
-                <span key={i}>{pilot.homeworld.name + " " + pilot.homeworld.population}</span>
-            ))}</Cell>
+            <Cell>
+                {mostPopulated?.pilots.map((pilot, i) => (
+                    <span key={i}>{pilot.homeworld.name + " " + pilot.homeworld.population}</span>
+                ))}
+            </Cell>
         )
     }, [mostPopulated])
 
     const pilotNames = useMemo(() => {
         return (
-            <Cell>{mostPopulated?.pilots.map((pilot, i, pilots) => (
-                <span key={i}>{pilot.name + (i === pilots.length - 1 ? "" : ", ")}</span>
-            ))}</Cell>
+            <Cell>
+                {mostPopulated?.pilots.map((pilot, i, pilots) => (
+                    <span key={i}>{pilot.name + (i === pilots.length - 1 ? "" : ", ")}</span>
+                ))}
+            </Cell>
         )
     }, [mostPopulated])
 
