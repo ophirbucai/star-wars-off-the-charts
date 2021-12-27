@@ -24,37 +24,23 @@ function App() {
     ];
 
     try {
-      let res = await Promise.all(urls.map((e) => fetch(e)));
-      let json = await Promise.all(res.map((e) => e.json()));
-      const vehiclesArray = [].concat.apply([], json.map((e) => e.results));
-      await consolidateData(vehiclesArray, 'pilots');
-      await Promise.all(vehiclesArray.map(async (vehicle) => {
-        return await consolidateData(vehicle.pilots, 'homeworld')
-      }));
-      setVehicles(vehiclesArray);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const consolidateData = async (array, key) => {
-    try {
-      const newArray = array.map(async (urls) => { // array may contain a string url or an array of urls
-        if (typeof urls[key] == 'string') {
-          const res = await fetch(urls[key]);
-          const fetchedData = await res.json();
-          urls[key] = fetchedData; // replace the string url with the fetched data
-        } else {
-          if(!urls?.[key].length) return; // check if the array is empty, if so return;
-          const fetchedData = await Promise.all(urls[key].map(async (e) => {
-            const res = await fetch(e);
-            return await res.json();
-          }));
-          urls[key] = fetchedData; // replace the array of urls with fetched data array
-          return urls;
+      const fetchData = async (url) => {
+        const res = await fetch(url);
+        return await res.json();
+      }
+      const arrayToBeMerged = await Promise.all(urls.map((url) => fetchData(url)));
+      const vehiclesArray = [].concat.apply([], arrayToBeMerged);
+      vehiclesArray.map(async (vehicle) => {
+        if (!vehicle.pilots?.length) {
+          return;
         }
-      });
-      return await Promise.all(newArray).then((data) => data);
+        const pilots = await Promise.all(vehicle.pilots.map(async (url) => {
+          const data = await fetchData(url);
+          data.homeworld = await fetchData(data.results.homeworld);
+          return data;
+        }));
+        vehicle.pilots = pilots;
+      })
     } catch (error) {
       console.log(error);
       return error;
