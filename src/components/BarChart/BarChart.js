@@ -51,7 +51,7 @@ const Bar = styled.div`
 function BarChart({ planets }) {
 
     const barHeights = useMemo(() => {
-        const largestPopulation = planets.reduce((acc, planet) => {
+        const mostPopulatedPlanet = planets.reduce((acc, planet) => {
             return Number(planet.population) > acc.population ? planet : acc
         }, {population: 0});
 
@@ -60,7 +60,7 @@ function BarChart({ planets }) {
         };
 
         const getBarHeights = () => {
-            const sqRootedLargestPopulation = getRootedNumber(largestPopulation.population);
+            const sqRootedLargestPopulation = getRootedNumber(mostPopulatedPlanet.population);
             return planets.map((planet) => getRootedNumber(planet.population) / sqRootedLargestPopulation * 100);
         };
 
