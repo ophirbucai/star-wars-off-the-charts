@@ -32,10 +32,7 @@ function App() {
       let json = await Promise.all(res.map((e) => e.json()));
       const vehiclesArray = [].concat.apply([], json.map((e) => e.results));
       await consolidate(vehiclesArray, 'pilots');
-      const promises = vehiclesArray.map(async (vehicle) => {
-        return await consolidate(vehicle.pilots, 'homeworld')
-      });
-      await Promise.all(promises);
+      await Promise.all(vehiclesArray.map(async (vehicle) => await consolidate(vehicle.pilots, 'homeworld')));
       setVehicles(vehiclesArray);
     } catch (error) {
       console.log(error);
@@ -44,26 +41,22 @@ function App() {
 
   const consolidate = async (array, key) => {
     try {
-      const newArray = array.map(async (item) => {
-        if (typeof item[key] == 'string') {
-          const res = await fetch(item[key]);
-          const json = await res.json();
-          item[key] = json;
-          return;
+      const newArray = array.map(async (urls) => { // array may contain a string url or an array of urls
+        if (typeof urls[key] == 'string') {
+          const res = await fetch(urls[key]);
+          const fetchedData = await res.json();
+          urls[key] = fetchedData; // replace the string url with the fetched data
         } else {
-          if(!item?.[key]?.length) return item;
-          let res = item[key].map(async (e) => {
-            const response = await fetch(e);
-            const json = await response.json();
-            return json;
-          });
-          const items4Key = await Promise.all(res);
-          item[key]= items4Key;
-          return item;
+          if(!urls?.[key].length) return; // check if the array is empty, if so return;
+          const fetchedData = await Promise.all(urls[key].map(async (e) => {
+            const res = await fetch(e);
+            return await res.json();
+          }));
+          urls[key] = fetchedData; // replace the array of urls with fetched data array
+          return urls;
         }
       });
-      const toRet = await Promise.all(newArray).then((data) => data);
-      return toRet;
+      return await Promise.all(newArray).then((data) => data);
     } catch (error) {
       console.log(error);
       return error;
