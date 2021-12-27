@@ -49,25 +49,25 @@ const Bar = styled.div`
   
 `
 
-function BarChart({ details }) {
+function BarChart({ planets }) {
     const barHeights = useMemo(() => {
         const getRootedNumber = (num) => {
             return Math.floor(Math.sqrt(Math.sqrt(Math.sqrt(num))));
         }
         const getBarHeights = () => {
-            const largestPopulation = details.reduce((acc, planet) => {
+            const largestPopulation = planets.reduce((acc, planet) => {
                 return Number(planet.population) > acc.population ? planet : acc
             }, {population: 0});
             const sqRootedLargestPopulation = getRootedNumber(largestPopulation.population);
-            return details.map((planet) => getRootedNumber(planet.population) / sqRootedLargestPopulation * 100);
+            return planets.map((planet) => getRootedNumber(planet.population) / sqRootedLargestPopulation * 100);
         }
         const calculatedBarHeights = getBarHeights();
         return calculatedBarHeights;
-    }, [details])
+    }, [planets])
 
     return (
         <BarContainer>
-            {details.map((planet, i) => <Bar height={barHeights[i]} population={planet.population} label={planet.name} i={i} key={i} />)}
+            {planets.map((planet, i) => <Bar height={barHeights[i]} population={planet.population} label={planet.name} i={i} key={i} />)}
         </BarContainer>
     );
 }

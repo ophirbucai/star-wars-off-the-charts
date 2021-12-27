@@ -15,10 +15,6 @@ function App() {
     setPlanets(planetsArray);
   }
 
-  useEffect(() => {
-    getPlanetsData()
-  }, [])
-
   const getVehiclesData = async() => {
     const urls = [
       "https://swapi.dev/api/vehicles/",
@@ -31,15 +27,15 @@ function App() {
       let res = await Promise.all(urls.map((e) => fetch(e)));
       let json = await Promise.all(res.map((e) => e.json()));
       const vehiclesArray = [].concat.apply([], json.map((e) => e.results));
-      await consolidate(vehiclesArray, 'pilots');
-      await Promise.all(vehiclesArray.map(async (vehicle) => await consolidate(vehicle.pilots, 'homeworld')));
+      await consolidateData(vehiclesArray, 'pilots');
+      await Promise.all(vehiclesArray.map(async (vehicle) => await consolidateData(vehicle.pilots, 'homeworld')));
       setVehicles(vehiclesArray);
     } catch (error) {
       console.log(error);
     }
   };
 
-  const consolidate = async (array, key) => {
+  const consolidateData = async (array, key) => {
     try {
       const newArray = array.map(async (urls) => { // array may contain a string url or an array of urls
         if (typeof urls[key] == 'string') {
@@ -64,43 +60,15 @@ function App() {
   }
 
   useEffect(() => {
+    getPlanetsData()
     getVehiclesData();
   }, []);
-
-  const findPopulationSum = () => {
-    const map = {};
-    vehicles.forEach((vehicle, index) => {
-      const sum = vehicle.pilots.reduce((acc, pilot) => {
-        return acc + parseInt(pilot.homeworld.population) || 0; // if population is not a number, add 0
-      }, 0);
-      map[index] = sum;
-    })
-    console.log(map);
-    return map;
-  }
-
-  const findMostPopulated = (map) => {
-    const mostPop = Object.keys(map).reduce((acc, index) => {
-      if (map[index] > acc.population) {
-        return {index, population: map[index]};
-      } else {
-        return acc;
-      }
-    }, {population: 0});
-    return vehicles[mostPop.index];
-  }
-
-  const mostPopulated = useMemo(() => {
-    const populationMap = findPopulationSum();
-    return findMostPopulated(populationMap);
-  }, [vehicles])
-
 
 
   return (
     <div className="App">
-      {planets && <BarChart details={planets} />}
-      {mostPopulated && <TableChart details={mostPopulated} />}
+      {planets && <BarChart planets={planets} />}
+      {vehicles && <TableChart vehicles={vehicles} />}
     </div>
   );
 }
