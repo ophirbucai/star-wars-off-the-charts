@@ -15,7 +15,6 @@ const Bar = styled.div`
     background: lightgreen;
     height: ${props => props.height}%;
     width: 120px;
-    height: ${props => props.height}%;
     position: relative;
     animation: fill-from-bottom;
     animation-fill-mode: backwards;
@@ -50,20 +49,25 @@ const Bar = styled.div`
 `
 
 function BarChart({ planets }) {
+
     const barHeights = useMemo(() => {
+        const largestPopulation = planets.reduce((acc, planet) => {
+            return Number(planet.population) > acc.population ? planet : acc
+        }, {population: 0});
+
         const getRootedNumber = (num) => {
-            return Math.floor(Math.sqrt(Math.sqrt(Math.sqrt(num))));
-        }
+            return Math.floor(Math.sqrt(Math.sqrt(Math.sqrt(num))))
+        };
+
         const getBarHeights = () => {
-            const largestPopulation = planets.reduce((acc, planet) => {
-                return Number(planet.population) > acc.population ? planet : acc
-            }, {population: 0});
             const sqRootedLargestPopulation = getRootedNumber(largestPopulation.population);
             return planets.map((planet) => getRootedNumber(planet.population) / sqRootedLargestPopulation * 100);
-        }
+        };
+
         const calculatedBarHeights = getBarHeights();
         return calculatedBarHeights;
-    }, [planets])
+
+    }, [planets]);
 
     return (
         <BarContainer>
