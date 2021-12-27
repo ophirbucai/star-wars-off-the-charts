@@ -71,7 +71,9 @@ function BarChart({ planets }) {
 
     return (
         <BarContainer>
-            {planets.map((planet, i) => <Bar height={barHeights[i]} population={planet.population} label={planet.name} i={i} key={i} />)}
+            {planets.map((planet, i) => (
+                <Bar height={barHeights[i]} population={planet.population} label={planet.name} i={i} key={i}/>
+            ))}
         </BarContainer>
     );
 }

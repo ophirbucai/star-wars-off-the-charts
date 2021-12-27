@@ -28,7 +28,9 @@ function App() {
       let json = await Promise.all(res.map((e) => e.json()));
       const vehiclesArray = [].concat.apply([], json.map((e) => e.results));
       await consolidateData(vehiclesArray, 'pilots');
-      await Promise.all(vehiclesArray.map(async (vehicle) => await consolidateData(vehicle.pilots, 'homeworld')));
+      await Promise.all(vehiclesArray.map(async (vehicle) => {
+        return await consolidateData(vehicle.pilots, 'homeworld')
+      }));
       setVehicles(vehiclesArray);
     } catch (error) {
       console.log(error);
