@@ -29,18 +29,19 @@ function App() {
         return await res.json();
       }
       const arrayToBeMerged = await Promise.all(urls.map((url) => fetchData(url)));
-      const vehiclesArray = [].concat.apply([], arrayToBeMerged);
-      vehiclesArray.map(async (vehicle) => {
-        if (!vehicle.pilots?.length) {
+      const vehiclesArray = [].concat.apply([], arrayToBeMerged.map((arr) => arr.results));
+      await Promise.all(vehiclesArray.map(async (vehicle) => {
+        if (!vehicle.pilots.length) {
           return;
         }
         const pilots = await Promise.all(vehicle.pilots.map(async (url) => {
           const data = await fetchData(url);
-          data.homeworld = await fetchData(data.results.homeworld);
+          data.homeworld = await fetchData(data.homeworld);
           return data;
         }));
         vehicle.pilots = pilots;
-      })
+      }));
+      setVehicles(vehiclesArray);
     } catch (error) {
       console.log(error);
       return error;
